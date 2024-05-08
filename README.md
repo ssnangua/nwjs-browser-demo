@@ -24,7 +24,7 @@
 1. 下载 [NW.js](https://nwjs.io/) 的 SDK 包，把 `package.nw` 放到根目录（和 `nw.exe` 同一级）
 4. 启动 `nw.exe`
 
-> **NOTE：**如果想支持视频播放，还需要替换 `ffmpeg.dll`：https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases
+> **NOTE：** 如果想支持视频播放，还需要替换 `ffmpeg.dll`：https://github.com/nwjs-ffmpeg-prebuilt/nwjs-ffmpeg-prebuilt/releases
 
 
 
