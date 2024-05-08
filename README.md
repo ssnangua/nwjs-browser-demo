@@ -11,6 +11,7 @@
 - [x] **标签栏**（基于 [chrome-tabs](https://github.com/adamschwartz/chrome-tabs) 实现的仿 Chrome 标签栏）
   - [x] **标签页预览**（显示 WebView 截图）
 - [x] **地址栏**
+  - [x] 页面导航（返回、前进、刷新、停止）
 - [x] **WebView**（显示页面）
   - [x] 打开 **开发者工具**
   - [x] 鼠标移上 `<a>` 标签时显示 **链接预览**
@@ -32,13 +33,13 @@
 
 **页面：**
 
-- `main.html` - 主窗口
+- `index.html` - 主窗口
 - `blank.html` - 空白页
 - `setting.html` - 设置页
 
 **模块：**
 
-- `main.js` - 主窗口
+- `index.js` - 主窗口
   - `window.js` - 窗口控制
   - `tabBar.js` - 标签栏
     - `Tab.js` - 标签页组件
