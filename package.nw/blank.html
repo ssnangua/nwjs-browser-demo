@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="assets/tab.ico" type="image/x-icon" />
+    <title>新建标签页</title>
+    <link rel="stylesheet" href="./iconfont/iconfont.css" />
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background-color: #f7f7f7;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      * {
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+
+      h1 {
+        color: #eee;
+        font: 700 60px "微软雅黑";
+        text-shadow: -1px -1px 1px #888, 1px 1px 1px #fff;
+        white-space: nowrap;
+      }
+
+      /* 搜索框 */
+      .search-bar,
+      .links {
+        width: 70%;
+        max-width: 800px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .search-input {
+        flex: auto;
+        line-height: 46px;
+        border-top-left-radius: 23px;
+        border-bottom-left-radius: 23px;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        padding: 0 16px;
+        box-shadow: 0 0 5px #ccc;
+      }
+      .search-button {
+        display: inline-block;
+        background-color: #3f76cf;
+        font-size: 16px;
+        color: #fff;
+        line-height: 46px;
+        border-top-right-radius: 23px;
+        border-bottom-right-radius: 23px;
+        cursor: pointer;
+        padding: 0 24px;
+        box-shadow: 0 0 5px #ccc;
+        transition: background-color 0.3s;
+      }
+      .search-button:hover {
+        background-color: #386aba;
+      }
+
+      /* 快捷链接 */
+      .links {
+        margin-top: 20px;
+        flex-flow: row wrap;
+      }
+      .tile {
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        justify-content: center;
+        width: 112px;
+        height: 112px;
+        position: relative;
+        border-radius: 4px;
+        position: relative;
+      }
+      .tile:hover {
+        background-color: #e8e8e9;
+      }
+      .tile a {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .tile-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: #e1e3e1;
+        margin-top: 16px;
+      }
+      .tile-icon > img {
+        width: 24px;
+        height: 24px;
+      }
+      .tile-title {
+        font-size: 12px;
+        text-align: center;
+        width: 88px;
+        line-height: 36px;
+        padding: 2px 8px;
+        margin-top: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .icon-more {
+        display: none;
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 28px;
+        line-height: 28px;
+        text-align: center;
+        border-radius: 14px;
+        transform: rotate(90deg);
+        color: #80868b;
+        cursor: pointer;
+      }
+      .tile:hover .icon-more {
+        display: block;
+      }
+      .icon-more:hover {
+        background-color: #d8d8d9;
+        color: #5f6368;
+      }
+
+      /* 菜单 */
+      .menu {
+        display: none;
+        position: fixed;
+        width: 128px;
+        height: 67px;
+        border-radius: 4px;
+        background-color: #fff;
+        box-shadow: 0 0 5px #ccc;
+        padding: 10px 0;
+      }
+      .menu-item {
+        padding: 8px 24px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .menu-item:hover {
+        background-color: #ededed;
+      }
+
+      /* 模态弹框 */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+      .modal.show {
+        display: block;
+      }
+      .dialog {
+        width: 500px;
+        background-color: #fff;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 8px;
+        padding: 20px;
+      }
+      .dialog-body {
+        padding: 20px 0;
+      }
+      .form-item + .form-item {
+        margin-top: 20px;
+      }
+      .form-item-label {
+        margin-bottom: 10px;
+        font-size: 12px;
+      }
+      .form-item-input {
+        display: flex;
+      }
+      .form-item-input input {
+        flex: auto;
+        line-height: 40px;
+        border: none;
+        outline: none;
+        background-color: #e1e3e1;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        border-bottom: 2px solid #747775;
+        padding: 0 10px;
+      }
+      .form-item-input input:focus {
+        border-bottom: 2px solid #4074f8;
+      }
+      .dialog-footer {
+        text-align: right;
+      }
+      .button {
+        display: inline-block;
+        line-height: 36px;
+        padding: 0 20px;
+        border-radius: 20px;
+        font-size: 13px;
+        cursor: pointer;
+        border: 1px solid #4074f8;
+        color: #4074f8;
+      }
+      .button:hover {
+        background-color: #ededed;
+      }
+      .button.confirm {
+        border: none;
+        background-color: #4074f8;
+        color: #fff;
+      }
+      .button.confirm:hover {
+        background-color: #2468d5;
+      }
+      .button.confirm.disabled {
+        pointer-events: none;
+        background-color: #e5e5e5;
+        color: #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>NW.js 浏览器</h1>
+
+    <!-- 搜索栏 -->
+    <div class="search-bar">
+      <input class="search-input" type="text" placeholder="搜索网页" />
+      <i class="iconfont icon-search search-button"></i>
+    </div>
+
+    <!-- 快捷链接 -->
+    <div class="links"></div>
+
+    <!-- 菜单 -->
+    <div id="menu" class="menu">
+      <div id="edit-link" class="menu-item">修改快捷方式</div>
+      <div id="remove-link" class="menu-item">移除</div>
+    </div>
+
+    <!-- 编辑快捷方式弹框 -->
+    <div id="link-editor" class="modal">
+      <div class="dialog">
+        <div class="dialog-header" id="dialog-title">添加快捷方式</div>
+        <div class="dialog-body">
+          <div class="form-item">
+            <div class="form-item-label">名称</div>
+            <div class="form-item-input"><input id="link-name" type="text" /></div>
+          </div>
+          <div class="form-item">
+            <div class="form-item-label">网址</div>
+            <div class="form-item-input"><input id="link-url" type="text" /></div>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <div id="cancel" class="button">取消</div>
+          <div id="confirm" class="button confirm disabled">完成</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      window.NWHook = (NW) => {
+        NW.sendMessage("WV_getSettingData");
+        NW.onMessage("NW_settingData", (setting) => {
+          const { blank } = setting;
+          const setSetting = () => NW.sendMessage("WV_setSettingData", setting);
+
+          // 搜索
+          const $searchInput = document.querySelector(".search-input");
+          const $searchButton = document.querySelector(".search-button");
+          const search = () => NW.sendMessage("WV_search", $searchInput.value);
+          $searchInput.addEventListener("keydown", (e) => {
+            if (!e.repeat && e.key === "Enter") search();
+          });
+          $searchButton.addEventListener("click", search);
+
+          // HTML字符转义
+          function encodeHTML(str) {
+            return str.replace(/[\u00A0-\u9999<>\&'"]/g, (i) => "&#" + i.charCodeAt(0) + ";");
+          }
+          // 生成快捷链接节点代码
+          function getLinkHTML({ name, url }) {
+            name = encodeHTML(name);
+            const icon = `${new URL(url).origin}/favicon.ico`;
+            return `
+              <div class="tile" title="${name}">
+                <a href="${url}"></a>
+                <div class="tile-icon"><img src="${icon}" /></div>
+                <div class="tile-title"><span>${name}</span></div>
+                <i class="iconfont icon-more" title="可对“${name}”快捷方式执行的更多操作"></i>
+              </div>
+            `;
+          }
+          // 创建快捷链接节点
+          function getLinkNode(link) {
+            const $box = document.createElement("div");
+            $box.innerHTML = getLinkHTML(link);
+            return $box.children[0];
+          }
+
+          // 快捷链接
+          const $links = document.querySelector(".links");
+          $links.innerHTML =
+            blank.links.map((link) => getLinkHTML(link)).join("") +
+            `<div id="add-button" class="tile">
+              <a href="javascript:;"></a>
+              <div class="tile-icon"><i class="iconfont icon-add"></i></div>
+              <div class="tile-title"><span>添加快捷方式</span></div>
+            </div>`;
+          $links.onclick = (e) => {
+            // 更多操作按钮点击
+            if (e.target.classList.contains("icon-more")) {
+              const $link = e.target.closest(".tile");
+              const index = Array.from($links.children).indexOf($link);
+              const link = blank.links[index];
+              // 弹出菜单
+              linkMenu.popup(e.x, e.y, (value) => {
+                if (value === "edit") {
+                  // 编辑
+                  linkEditor.show(link, (data) => {
+                    if (data) {
+                      blank.links[index] = data;
+                      $link.replaceWith(getLinkNode(data));
+                      setSetting();
+                    }
+                  });
+                } else if (value === "remove") {
+                  // 移除
+                  blank.links.splice(index, 1);
+                  $link.remove();
+                  setSetting();
+                }
+              });
+            }
+          };
+
+          // 添加新的快捷方式
+          const $addLink = document.querySelector("#add-button");
+          $addLink.onclick = () =>
+            linkEditor.show(null, (link) => {
+              if (link) {
+                const $link = getLinkNode(link);
+                $links.insertBefore($link, $addLink);
+                blank.links.push(link);
+                setSetting();
+              }
+            });
+        });
+
+        // 快捷链接菜单
+        const linkMenu = {
+          $el: document.querySelector("#menu"),
+          $edit: document.querySelector("#edit-link"),
+          $remove: document.querySelector("#remove-link"),
+          callback: null,
+          _windowHandler: null,
+          popup(x, y, callback) {
+            this.callback = callback;
+            let width = 128;
+            let height = 67;
+            let left = x - width + 10 < 0 ? 0 : x - width + 10;
+            let top = y + height > window.innerHeight ? y - height : y - 10;
+            this.$el.style.cssText = `display: block; left: ${left}px; top: ${top}px`;
+            this._windowHandler = () => this.close();
+            window.addEventListener("mousedown", this._windowHandler);
+          },
+          close(value) {
+            this.$el.style.cssText = "";
+            this.callback(value);
+            window.removeEventListener("mousedown", this._windowHandler);
+            this._windowHandler = null;
+            this.callback = null;
+          },
+          init() {
+            this.$edit.onmousedown = () => this.close("edit");
+            this.$remove.onmousedown = () => this.close("remove");
+            this.$el.onmousedown = (e) => e.stopPropagation();
+          },
+        };
+        linkMenu.init();
+
+        // 快捷链接编辑弹框
+        const linkEditor = {
+          $el: document.querySelector("#link-editor"),
+          $title: document.querySelector("#dialog-title"),
+          $linkName: document.querySelector("#link-name"),
+          $linkUrl: document.querySelector("#link-url"),
+          $cancel: document.querySelector("#cancel"),
+          $confirm: document.querySelector("#confirm"),
+          urlPattern: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6}).*/,
+          callback: null,
+          show(link, callback) {
+            this.callback = callback;
+            this.$title.innerText = link ? "修改快捷方式" : "添加快捷方式";
+            this.$linkName.value = link?.name || "";
+            this.$linkUrl.value = link?.url || "";
+            this.$el.classList.add("show");
+            this.$linkName.focus();
+            this.valid();
+          },
+          valid() {
+            const result =
+              this.$linkName.value.trim() && this.urlPattern.test(this.$linkUrl.value.trim());
+            this.$confirm.classList[result ? "remove" : "add"]("disabled");
+          },
+          init() {
+            this.$linkName.oninput =
+              this.$linkUrl.oninput =
+              this.$linkName.onchange =
+              this.$linkUrl.onchange =
+                () => this.valid();
+            this.$cancel.onclick = () => {
+              this.callback();
+              this.$el.classList.remove("show");
+              this.callback = null;
+            };
+            this.$confirm.onclick = () => {
+              this.callback({
+                name: this.$linkName.value.trim(),
+                url: this.$linkUrl.value.trim(),
+              });
+              this.$el.classList.remove("show");
+              this.callback = null;
+            };
+          },
+        };
+        linkEditor.init();
+      };
+    </script>
+  </body>
+</html>

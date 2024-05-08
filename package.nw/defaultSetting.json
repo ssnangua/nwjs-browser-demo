@@ -1,0 +1,14 @@
+{
+  "home": "",
+  "search": [
+    { "name": "必应", "rule": "https://cn.bing.com/search?q=%s", "active": true },
+    { "name": "百度", "rule": "https://www.baidu.com/s?wd=%s", "active": false }
+  ],
+  "blank": {
+    "links": [
+      { "name": "必应", "url": "https://cn.bing.com" },
+      { "name": "百度", "url": "https://www.baidu.com" },
+      { "name": "哔哩哔哩", "url": "https://www.bilibili.com" }
+    ]
+  }
+}

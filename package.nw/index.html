@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NW 浏览器</title>
+    <link rel="stylesheet" href="./iconfont/iconfont.css" />
+    <link rel="stylesheet" href="./lib/chrome-tabs/chrome-tabs.css" />
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <!-- 标题栏 -->
+    <div class="header">
+      <!-- 顶部可拖动区域 -->
+      <div class="header-top"></div>
+      <!-- 标签栏 -->
+      <div id="tab-bar" class="chrome-tabs" style="--tab-content-margin: 9px">
+        <div class="chrome-tabs-content"></div>
+        <div class="chrome-tabs-bottom-bar"></div>
+      </div>
+      <!-- 标题栏右侧区域 -->
+      <div class="tabs-right-area">
+        <!-- 新建标签页按钮 -->
+        <i id="add-tab-button" class="iconfont icon-add"></i>
+      </div>
+      <!-- 窗口按钮 -->
+      <div class="window-control">
+        <i title="最小化" class="iconfont icon-minimize" window-button="minimize"></i>
+        <i title="最大化" class="iconfont icon-maximize" window-button="maximize"></i>
+        <i title="向下还原" class="iconfont icon-restore" window-button="restore"></i>
+        <i title="关闭" class="iconfont icon-close" window-button="close"></i>
+      </div>
+    </div>
+
+    <!-- 地址栏 -->
+    <div class="address-bar">
+      <i title="返回 (Alt+向左箭头)" class="iconfont icon-forward" nav-button="back"></i>
+      <i title="前进 (Alt+向右箭头)" class="iconfont icon-forward" nav-button="forward"></i>
+      <i title="刷新 (Ctrl+R)" class="iconfont icon-reload" nav-button="reload"></i>
+      <i title="停止" class="iconfont icon-close" nav-button="stop"></i>
+      <i class="iconfont icon-search address-icon"></i>
+      <input id="address" type="text" placeholder="搜索或输入 Web 地址" />
+      <i title="设置及其他" class="iconfont icon-more" nav-button="showAppMenu"></i>
+    </div>
+
+    <!-- WebView和开发者工具 -->
+    <div class="webview-devtools">
+      <!-- WebView容器 -->
+      <div id="webview-container">
+        <div id="href-preview"></div>
+      </div>
+      <!-- 调整开发者工具大小 -->
+      <div class="resize-handler-h"></div>
+      <!-- 开发者工具容器 -->
+      <div id="devtools-container"></div>
+    </div>
+
+    <!-- 标签页预览 -->
+    <div id="tab-preview" class="hide">
+      <!-- WebView截图 -->
+      <div id="tab-snapshoot"><img src="" /></div>
+      <div class="tab-info">
+        <!-- 标题 -->
+        <div id="tab-title"></div>
+        <div class="tab-info-1">
+          <!-- 图标 -->
+          <img id="tab-icon" src="" />
+          <!-- 域名 -->
+          <span id="tab-host"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 查找栏 -->
+    <div id="find-bar" class="hide">
+      <input id="find-input" type="text" />
+      <div id="find-result" class="hide">0/0</div>
+      <i title="上一个结果 (Ctrl+Shift+G)" class="iconfont icon-up" find-button="prev"></i>
+      <i title="下一个结果 (Ctrl+G)" class="iconfont icon-down" find-button="next"></i>
+      <i title="关闭" class="iconfont icon-close" find-button="close"></i>
+    </div>
+
+    <script src="./lib/chrome-tabs/draggabilly.pkgd.min.js"></script>
+    <script src="./lib/chrome-tabs/chrome-tabs.js"></script>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

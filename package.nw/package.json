@@ -1,0 +1,29 @@
+{
+  "name": "NW 浏览器",
+  "version": "0.0.1",
+  "main": "index.html",
+  "window": {
+    "id": "main",
+    "frame": false,
+    "icon": "assets/app.png",
+    "min_width": 500,
+    "min_height": 400,
+    "position": "center"
+  },
+  "webview": {
+    "partitions": [
+      {
+        "name": "trusted",
+        "accessible_resources": [
+          "<all_urls>"
+        ]
+      }
+    ]
+  },
+  "author": "ssnangua",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ssnangua/nwjs-browser-demo"
+  }
+}

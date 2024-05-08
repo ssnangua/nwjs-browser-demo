@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="assets/setting.ico" type="image/x-icon" />
+    <title>设置</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background-color: #f7f7f7;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      * {
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+
+      .group-title {
+        width: 1000px;
+        max-width: 70%;
+        margin-bottom: 20px;
+      }
+      .group-pane {
+        width: 1000px;
+        max-width: 70%;
+        box-shadow: 0 0 5px #ccc;
+        padding: 20px;
+        display: flex;
+        flex-flow: column;
+        margin-bottom: 30px;
+        overflow: hidden;
+      }
+      input {
+        line-height: 30px;
+        outline: none;
+        border: 1px solid #c7c7c7;
+        border-radius: 4px;
+        padding: 0 10px;
+      }
+      input.error {
+        background-color: #f7e3e2;
+        border-color: #de776f;
+      }
+
+      table {
+        margin-top: 10px;
+        font-size: 13px;
+      }
+      th,
+      td {
+        padding: 4px 8px;
+        text-align: left;
+      }
+      th {
+        white-space: nowrap;
+      }
+      td a {
+        cursor: pointer;
+        white-space: nowrap;
+        color: #4074f8;
+      }
+      td a.danger {
+        color: #de776f;
+      }
+      td a:hover {
+        opacity: 0.8;
+      }
+      td a + a {
+        margin-left: 10px;
+      }
+      .table-footer {
+        text-align: right;
+        margin-top: 20px;
+      }
+      tr > td:last-child {
+        text-align: right;
+      }
+
+      /* 模态弹框 */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+      .modal.show {
+        display: block;
+      }
+      .dialog {
+        width: 500px;
+        background-color: #fff;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 8px;
+        padding: 20px;
+      }
+      .dialog-body {
+        padding: 20px 0;
+      }
+      .form-item + .form-item {
+        margin-top: 20px;
+      }
+      .form-item-label {
+        margin-bottom: 10px;
+        font-size: 12px;
+      }
+      .form-item-input {
+        display: flex;
+      }
+      .form-item-input input {
+        flex: auto;
+        line-height: 40px;
+        border: none;
+        outline: none;
+        background-color: #e1e3e1;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        border-bottom: 2px solid #747775;
+        padding: 0 10px;
+      }
+      .form-item-input input:focus {
+        border-bottom: 2px solid #4074f8;
+      }
+      .dialog-footer {
+        text-align: right;
+      }
+      .button {
+        display: inline-block;
+        line-height: 36px;
+        padding: 0 20px;
+        border-radius: 20px;
+        font-size: 13px;
+        cursor: pointer;
+        border: 1px solid #4074f8;
+        color: #4074f8;
+      }
+      .button:hover {
+        background-color: #ededed;
+      }
+      .button.confirm {
+        border: none;
+        background-color: #4074f8;
+        color: #fff;
+      }
+      .button.confirm:hover {
+        background-color: #2468d5;
+      }
+      .button.confirm.disabled {
+        pointer-events: none;
+        background-color: #e5e5e5;
+        color: #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="group-title">主页</div>
+    <div class="group-pane">
+      <input id="home" type="text" />
+    </div>
+
+    <div class="group-title">
+      <span>搜索引擎</span>
+    </div>
+    <div class="group-pane">
+      <table>
+        <thead>
+          <td></td>
+          <th>名称</th>
+          <th>规则</th>
+          <th></th>
+        </thead>
+        <tbody id="search"></tbody>
+      </table>
+      <div>
+        <div class="table-footer">
+          <div id="add-serach" class="button">添加</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 编辑快捷方式弹框 -->
+    <div id="search-editor" class="modal">
+      <div class="dialog">
+        <div class="dialog-header" id="dialog-title">添加搜索规则</div>
+        <div class="dialog-body">
+          <div class="form-item">
+            <div class="form-item-label">名称</div>
+            <div class="form-item-input"><input id="search-name" type="text" /></div>
+          </div>
+          <div class="form-item">
+            <div class="form-item-label">网址格式（用“%s”代替搜索词）</div>
+            <div class="form-item-input"><input id="search-url" type="text" /></div>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <div id="cancel" class="button">取消</div>
+          <div id="confirm" class="button confirm disabled">完成</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.NWHook = (NW) => {
+        NW.sendMessage("WV_getSettingData");
+        NW.onMessage("NW_settingData", (setting) => {
+          console.log(setting);
+          let { home, search } = setting;
+          const setSetting = () => NW.sendMessage("WV_setSettingData", setting);
+          const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6}).*/;
+
+          // 主页
+          const $home = document.querySelector("#home");
+          $home.value = home;
+          $home.onchange = () => {
+            const value = $home.value.trim();
+            if (!value || urlPattern.test(value)) {
+              $home.classList.remove("error");
+              home = value;
+              setting.home = home;
+              setSetting();
+            } else {
+              $home.classList.add("error");
+            }
+          };
+
+          // HTML字符转义
+          function encodeHTML(str) {
+            return str.replace(/[\u00A0-\u9999<>\&'"]/g, (i) => "&#" + i.charCodeAt(0) + ";");
+          }
+          // 生成搜索规则节点代码
+          function getSearchItemHTML({ name, rule, active }) {
+            return `
+              <tr>
+                <td><input type="radio" name="search"${active ? " checked" : ""} /></td>
+                <td>${encodeHTML(name)}</td>
+                <td>${encodeHTML(rule)}</td>
+                <td>
+                  <a rule="edit">编辑</a>
+                  <a rule="remove" class="danger">移除</a>
+                </td>
+              </tr>
+            `;
+          }
+          // 创建搜索规则节点
+          function getSearchItemNode(data) {
+            const $box = document.createElement("tbody");
+            $box.innerHTML = getSearchItemHTML(data);
+            return $box.children[0];
+          }
+
+          // 搜索规则
+          const $search = document.querySelector("#search");
+          $search.innerHTML = search.map(getSearchItemHTML).join("");
+          $search.onclick = (e) => {
+            if (e.target.type === "radio") {
+              // 切换当前使用的搜索规则
+              const $tr = e.target.closest("tr");
+              const index = Array.from($search.children).indexOf($tr);
+              search.forEach((data) => (data.active = false));
+              search[index].active = true;
+              setSetting();
+            } else if (e.target.tagName.toLowerCase() === "a") {
+              const rule = e.target.getAttribute("rule");
+              const $tr = e.target.closest("tr");
+              const index = Array.from($search.children).indexOf($tr);
+              if (rule === "edit") {
+                // 编辑
+                const item = search[index];
+                searchEditor.show(item, (data) => {
+                  if (data) {
+                    data.active = item.active;
+                    $tr.replaceWith(getSearchItemNode(data));
+                    search[index] = data;
+                    setSetting();
+                  }
+                });
+              } else if (rule === "remove") {
+                // 移除
+                $tr.remove();
+                const [item] = search.splice(index, 1);
+                if (item.active) {
+                  const activeIndex = Math.max(0, index - 1);
+                  search[activeIndex].active = true;
+                  $search.children[activeIndex].querySelector('input[type="radio"]').checked = true;
+                }
+                setSetting();
+              }
+            }
+          };
+
+          // 添加新的搜索规则
+          const $addSearch = document.querySelector("#add-serach");
+          $addSearch.onclick = () => {
+            searchEditor.show(null, (data) => {
+              if (data) {
+                data.active = false;
+                const $tr = getSearchItemNode(data);
+                $search.appendChild($tr);
+                search.push(data);
+                setSetting();
+              }
+            });
+          };
+        });
+
+        // 搜索规则编辑弹框
+        const searchEditor = {
+          $el: document.querySelector("#search-editor"),
+          $title: document.querySelector("#dialog-title"),
+          $searchName: document.querySelector("#search-name"),
+          $searchUrl: document.querySelector("#search-url"),
+          $cancel: document.querySelector("#cancel"),
+          $confirm: document.querySelector("#confirm"),
+          urlPattern: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6}).*/,
+          callback: null,
+          show(search, callback) {
+            this.callback = callback;
+            this.$title.innerText = search ? "修改搜索规则" : "添加搜索规则";
+            this.$searchName.value = search?.name || "";
+            this.$searchUrl.value = search?.rule || "";
+            this.$el.classList.add("show");
+            this.$searchName.focus();
+            this.valid();
+          },
+          valid() {
+            const result =
+              this.$searchName.value.trim() && this.urlPattern.test(this.$searchUrl.value.trim());
+            this.$confirm.classList[result ? "remove" : "add"]("disabled");
+          },
+          init() {
+            this.$searchName.oninput =
+              this.$searchUrl.oninput =
+              this.$searchName.onchange =
+              this.$searchUrl.onchange =
+                () => this.valid();
+            this.$cancel.onclick = () => {
+              this.callback();
+              this.$el.classList.remove("show");
+              this.callback = null;
+            };
+            this.$confirm.onclick = () => {
+              this.callback({
+                name: this.$searchName.value.trim(),
+                rule: this.$searchUrl.value.trim(),
+              });
+              this.$el.classList.remove("show");
+              this.callback = null;
+            };
+          },
+        };
+        searchEditor.init();
+      };
+    </script>
+  </body>
+</html>
