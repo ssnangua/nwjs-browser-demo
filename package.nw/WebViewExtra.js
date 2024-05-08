@@ -191,26 +191,25 @@ export default class WebViewExtra extends EventEmitter {
     });
 
     // 模态弹框
-    if (canDialog) {
-      this.#el.addEventListener(
-        "dialog",
-        ({ dialog, messageType, messageText, defaultPromptText }) => {
-          switch (messageType) {
-            case "alert":
-              alert(messageText);
-              dialog.ok();
-              break;
-            case "confirm":
-              dialog[confirm(messageText) ? "ok" : "cancel"]();
-              break;
-            case "prompt":
-              const result = prompt(messageText, defaultPromptText);
-              dialog[typeof result === "string" ? "ok" : "cancel"](result);
-              break;
-          }
+    this.#el.addEventListener("dialog", (e) => {
+      if (canDialog) {
+        const { dialog, messageType, messageText, defaultPromptText } = e;
+        switch (messageType) {
+          case "alert":
+            alert(messageText);
+            dialog.ok();
+            break;
+          case "confirm":
+            dialog[confirm(messageText) ? "ok" : "cancel"]();
+            break;
+          case "prompt":
+            const result = prompt(messageText, defaultPromptText);
+            dialog[typeof result === "string" ? "ok" : "cancel"](result);
+            break;
         }
-      );
-    }
+      }
+      this.emit("dialog", e);
+    });
 
     /**
      * 控制台消息
