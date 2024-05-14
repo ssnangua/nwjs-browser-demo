@@ -21,6 +21,7 @@ const clipboard = nw.Clipboard.get();
 const { name: appName } = nw.App.manifest;
 
 const urlPattern = /^((file:|https?:)\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6}).*/;
+const withoutProtocol = /^([\da-z\.-]+)\.([a-z\.]{2,6}).*/;
 const getUrl = (url) => url || setting.getHomeUrl() || pages.blank.url;
 const pagesArray = Object.values(pages);
 function getTitle(url) {
@@ -63,6 +64,7 @@ const browser = {
   // 导航
   navigate(url) {
     const tab = tabBar.activeTab;
+    if (withoutProtocol.test(url)) url = "https://" + url;
     if (!isAppPage(url) && !urlPattern.test(url)) {
       url = setting.getSearchUrl(url);
     }
