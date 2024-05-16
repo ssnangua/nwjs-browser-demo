@@ -296,6 +296,8 @@
           });
           $searchButton.addEventListener("click", search);
 
+          // 图标加载失败，显示默认图片
+          window.onIconError = ($img) => ($img.src = "./assets/file.png");
           // HTML字符转义
           function encodeHTML(str) {
             return str.replace(/[\u00A0-\u9999<>\&'"]/g, (i) => "&#" + i.charCodeAt(0) + ";");
@@ -307,7 +309,7 @@
             return `
               <div class="tile" title="${name}">
                 <a href="${url}"></a>
-                <div class="tile-icon"><img src="${icon}" /></div>
+                <div class="tile-icon"><img src="${icon}" onerror="onIconError(this)" /></div>
                 <div class="tile-title"><span>${name}</span></div>
                 <i class="iconfont icon-more" title="可对“${name}”快捷方式执行的更多操作"></i>
               </div>

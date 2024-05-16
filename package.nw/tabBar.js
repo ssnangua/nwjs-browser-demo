@@ -13,7 +13,7 @@ const $addTab = document.querySelector("#add-tab-button");
 // ChromeTabs库（非原版，加了些事件钩子，具体改动在源码中有“HACK”标记）
 const chromeTabs = new ChromeTabs();
 chromeTabs.init($tabBar);
-console.log(chromeTabs);
+// console.log(chromeTabs);
 
 // 标签页数据
 const tabs = {};

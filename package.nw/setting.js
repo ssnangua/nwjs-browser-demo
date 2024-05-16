@@ -3,6 +3,9 @@
  */
 import defaultSetting from "./defaultSetting.json" with { type: "json" };
 
+const path = require("node:path");
+const downloadsFolder = path.join(process.env.USERPROFILE, "Downloads");
+
 let setting;
 
 // storage发生变更时（可能来自其他窗口的修改），同步最新数据
@@ -15,7 +18,7 @@ export default {
     if (!setting) {
       setting = await new Promise((resolve) => {
         chrome.storage.local.get(["setting"], ({ setting }) => {
-          resolve(Object.assign(defaultSetting, setting));
+          resolve(Object.assign({ downloadsFolder, ...defaultSetting }, setting));
         });
       });
     }

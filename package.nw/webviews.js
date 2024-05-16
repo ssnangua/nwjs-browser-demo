@@ -25,6 +25,13 @@ function addWebview(tabId, url) {
   webview.on("load", () => {
     webview.getInfo((info) => emitter.emit("infoUpdate", tabId, info));
   });
+  // 权限请求
+  webview.on("permissionrequest", ({ permission, url, request }) => {
+    // request.allow();
+    if (permission === "download") {
+      emitter.emit("download", { url });
+    }
+  });
 
   // 标题变更
   webview.onMessage("WV_infoChange", (info) => emitter.emit("infoUpdate", tabId, info));

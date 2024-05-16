@@ -1,13 +1,15 @@
 /**
  * 标签页预览
  */
-import { between } from "./common.js";
+import { between, delay } from "./common.js";
 
 const $preview = document.querySelector("#tab-preview");
 const $snapshoot = document.querySelector("#tab-snapshoot img");
 const $title = document.querySelector("#tab-title");
 const $icon = document.querySelector("#tab-icon");
 const $host = document.querySelector("#tab-host");
+
+$icon.addEventListener("error", () => ($icon.src = "./assets/file.png"));
 
 let isShow = false;
 let showTimer = -1;
@@ -35,7 +37,7 @@ $snapshoot.addEventListener("error", () => snapshoot.hide());
 const capture = {
   query: [],
   running: false,
-  request(webview, callback) {
+  async request(webview, callback) {
     // 如果上个请求还没有处理完成，加入队列等待执行
     if (this.running) return this.query.push([webview, callback]);
     // 如果WebView已经销毁，不处理
@@ -47,17 +49,16 @@ const capture = {
     // 把WebView显示出来用于捕获，但不可见且不能交互
     webview.el.style.cssText = `display: flex; opacity: 0.01; position: absolute; pointer-events: none; top: 0; left: 0; width: 100%; height: 100%;`;
     // 稍微延迟等待WebView渲染布局
-    setTimeout(() => {
-      webview.captureVisibleRegion({ format: "jpeg", quality: 20 }, (dataUrl) => {
-        this.running = false; // 捕获完成
-        // 重置WebView
-        webview.el.style.cssText = "";
-        // 回调
-        callback(dataUrl);
-        // 如果有等待处理的队列，弹出最后添加的请求
-        if (this.query.length > 0) this.request(...this.query.pop());
-      });
-    }, 300);
+    await delay(300);
+    webview.captureVisibleRegion({ format: "jpeg", quality: 20 }, (dataUrl) => {
+      this.running = false; // 捕获完成
+      // 重置WebView
+      webview.el.style.cssText = "";
+      // 回调
+      callback(dataUrl);
+      // 如果有等待处理的队列，弹出最后添加的请求
+      if (this.query.length > 0) this.request(...this.query.pop());
+    });
   },
 };
 
@@ -95,7 +96,7 @@ export default {
         }
         $title.innerText = tab.title;
         $icon.src = tab.favicon;
-        $host.innerText = new URL(tab.url).host;
+        $host.innerText = new URL(tab.url).host || "本地或共享的文件";
         const { left } = tab.el.getBoundingClientRect();
         $preview.style.left = between(20, left, window.innerWidth - 300) + "px";
         $preview.classList.remove("hide");

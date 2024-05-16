@@ -8,16 +8,17 @@ const emitter = new EventEmitter();
 
 const $addressBar = document.querySelector(".address-bar");
 const $showAppMenu = document.querySelector('[nav-button="showAppMenu"]');
+const $downloading = document.querySelector('[nav-button="downloading"]');
+const $progress = document.querySelector('[nav-button="downloading"]>svg');
 
 // 按钮点击
 document.querySelectorAll("[nav-button]").forEach((el) => {
-  const cmd = el.getAttribute("nav-button");
   el.addEventListener("click", (e) => {
-    let data;
-    if (cmd === "showAppMenu") {
-      data = { x: window.innerWidth - 274, y: 78 };
+    let cmd = el.getAttribute("nav-button");
+    if (cmd === "download" || cmd === "downloading") {
+      cmd = "showDownloads";
     }
-    emitter.emit("buttonClick", cmd, data);
+    emitter.emit("buttonClick", cmd);
   });
 });
 
@@ -41,10 +42,24 @@ export default {
   set loading(loading) {
     $addressBar.classList[loading ? "add" : "remove"]("loading");
   },
-  update({ url, canGoBack, canGoForward }) {
+  // 更新导航按钮
+  updateNavigate({ url, canGoBack, canGoForward }) {
     $address.value = isAppPage(url) ? "" : url; // 更新输入框内容，如果是应用页面，则不显示url
     $addressBar.classList[canGoBack ? "add" : "remove"]("can-go-back"); // 是否可返回
     $addressBar.classList[canGoForward ? "add" : "remove"]("can-go-forward"); // 是否可前进
+  },
+  // 更新下载按钮
+  updateDownload({ downloading, count, bytesReceived, totalBytes }) {
+    if (downloading) {
+      $addressBar.classList.add("downloading");
+      // 处于“下载中”的下载项数量
+      $downloading.style.setProperty("--count", `"${count < 100 ? count : "99+"}"`);
+      // 下载进度
+      const progress = Math.round((bytesReceived / totalBytes) * 100);
+      $progress.style.setProperty("--progress", progress);
+    } else {
+      $addressBar.classList.remove("downloading");
+    }
   },
   focus: () => $address.focus(),
 };

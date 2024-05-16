@@ -16,6 +16,14 @@ const menu = createMenu([
   },
   { type: "separator" },
   {
+    label: "下载",
+    icon: "./assets/download.png",
+    key: "j",
+    modifiers: "ctrl",
+    click: () => emitter.emit("itemClick", "showDownloads"),
+  },
+  { type: "separator" },
+  {
     label: "在页面上查找",
     icon: "./assets/find.png",
     key: "f",
@@ -56,7 +64,10 @@ const menu = createMenu([
 
 export default {
   on: (type, listener) => emitter.on(type, listener),
-  popup(x, y) {
-    menu.popup(x, y);
+  show() {
+    menu.popup(
+      window.innerWidth - 310,
+      document.body.classList.contains("window-maximized") ? 68 : 78
+    );
   },
 };

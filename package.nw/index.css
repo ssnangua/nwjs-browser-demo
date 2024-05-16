@@ -27,6 +27,16 @@ input:-webkit-autofill:focus {
   display: none !important;
 }
 
+.modal {
+  z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.0001);
+}
+
 /* 标题栏 */
 .header {
   background-color: #cdcdcd;
@@ -133,14 +143,19 @@ input:-webkit-autofill:focus {
   line-height: 30px;
   display: flex;
   flex-flow: row nowrap;
+  align-items: center;
   padding: 5px 10px;
 }
 [nav-button] {
   display: inline-block;
   width: 36px;
+  height: 30px;
   text-align: center;
   border-radius: 4px;
   transition: background-color 0.3s;
+}
+[nav-button] + [nav-button] {
+  margin-left: 4px;
 }
 [nav-button="back"] {
   transform: rotate(180deg);
@@ -169,6 +184,63 @@ input:-webkit-autofill:focus {
   opacity: 1;
 }
 
+/* 下载进度 */
+[nav-button="downloading"] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+[nav-button="downloading"]::after {
+  content: var(--count);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 9px;
+}
+[nav-button="downloading"],
+.downloading [nav-button="download"] {
+  display: none;
+}
+.downloading [nav-button="downloading"] {
+  display: inline-flex;
+}
+/* @reference: https://www.30secondsofcode.org/css/s/circular-progress-bar/ */
+.circular-progress {
+  --half-size: calc(var(--size) / 2);
+  --radius: calc((var(--size) - var(--stroke-width)) / 2);
+  --circumference: calc(var(--radius) * pi * 2);
+  --dash: calc((var(--progress) * var(--circumference)) / 100);
+  animation: progress-animation 0.3s linear 0s 1 forwards;
+}
+.circular-progress circle {
+  cx: var(--half-size);
+  cy: var(--half-size);
+  r: var(--radius);
+  stroke-width: var(--stroke-width);
+  fill: none;
+  stroke-linecap: round;
+}
+.circular-progress circle.bg {
+  stroke: #ddd;
+}
+.circular-progress circle.fg {
+  transform: rotate(-90deg);
+  transform-origin: var(--half-size) var(--half-size);
+  stroke-dasharray: var(--dash) calc(var(--circumference) - var(--dash));
+  transition: stroke-dasharray 0.3s linear 0s;
+  stroke: #5394fd;
+}
+@keyframes progress-animation {
+  from {
+    --progress: 0;
+  }
+  to {
+    --progress: var(--progress);
+  }
+}
+
 /* 地址框 */
 #address {
   flex: auto;
@@ -180,6 +252,7 @@ input:-webkit-autofill:focus {
   padding: 0 15px 0 50px;
   z-index: 10;
   position: relative;
+  height: 30px;
 }
 #address:focus {
   outline: 2px solid #a9b8ea;
@@ -256,7 +329,7 @@ input:-webkit-autofill:focus {
   overflow: hidden;
   z-index: 1000;
   pointer-events: none;
-  box-shadow: 0 5px 10px #aaa;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-flow: column;
   font-size: 12px;
@@ -333,7 +406,7 @@ input:-webkit-autofill:focus {
   padding: 10px;
   border-radius: 8px;
   background-color: #fff;
-  box-shadow: 0 2px 5px #aaa;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   display: flex;
   z-index: 20;
 }
@@ -369,6 +442,220 @@ input:-webkit-autofill:focus {
 }
 [find-button] + [find-button] {
   margin-left: 10px;
+}
+
+/* 下载列表 */
+#downloads {
+  z-index: 1000;
+  position: fixed;
+  top: 78px;
+  right: 50px;
+  width: 360px;
+  height: 400px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  display: flex;
+  flex-flow: column;
+  min-height: 150px;
+  max-height: calc(100vh - 100px);
+}
+.window-maximized #downloads {
+  top: 68px;
+}
+.downloads-header {
+  padding: 8px 10px;
+  border-bottom: 1px solid #dadada;
+}
+.downloads-title {
+  font-size: 14px;
+  font-weight: bold;
+}
+.downloads-toolbar {
+  float: right;
+}
+[downloads-button] {
+  padding: 6px;
+  align-content: center;
+  border-radius: 2px;
+  cursor: pointer;
+}
+[downloads-button]:hover {
+  background-color: #e5e5e5;
+}
+.downloads-search {
+  padding: 2px 15px 3px 10px;
+  border-bottom: 1px solid #dadada;
+}
+.downloads-search,
+.search .downloads-header {
+  display: none;
+}
+.search .downloads-search {
+  display: flex;
+}
+[downloads-button="end-search"] {
+  transform: rotate(-90deg);
+}
+.downloads-search > .icon-search {
+  z-index: 1;
+  align-content: center;
+  margin-left: 18px;
+}
+#downloads-search-input {
+  flex: auto;
+  border: 1px solid #888888;
+  border-radius: 2px;
+  outline: 2px solid rgba(136, 136, 136, 0);
+  outline-offset: -2px;
+  margin-left: -28px;
+  line-height: 30px;
+  padding: 0 10px 0 40px;
+  transition: outline 0.3s;
+}
+#downloads-search-input:focus {
+  outline: 2px solid #888888;
+}
+.downloads-list-container {
+  flex: auto;
+  overflow: auto;
+  margin: 0 5px;
+}
+.downloads-list-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.downloads-list-container::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: #929292;
+}
+.downloads-list-container::-webkit-scrollbar-thumb:hover {
+  background-color: #acacac;
+}
+.download-item {
+  display: flex;
+  flex-flow: row nowrap;
+  cursor: pointer;
+  padding: 10px;
+  position: relative;
+}
+.download-item:hover {
+  background-color: #f2f2f2;
+}
+.download-item.selected {
+  background-color: #f2f2f2;
+  outline: 2px solid #888888;
+  outline-offset: -2px;
+}
+.download-icon {
+  display: flex;
+  align-items: center;
+}
+.download-icon > img {
+  width: 16px;
+  height: 16px;
+}
+.download-info {
+  margin-left: 10px;
+  flex: auto;
+  display: flex;
+  flex-flow: column;
+  overflow: hidden;
+}
+.download-name {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.download-progress {
+  width: 100%;
+  height: 10px;
+}
+.paused .download-progress {
+  filter: grayscale(1);
+}
+.download-bytes-info,
+.download-deleted {
+  font-size: 10px;
+  color: #777777;
+}
+.download-open-file {
+  font-size: 10px;
+  color: #2f5b9f;
+  text-decoration-line: underline;
+  text-underline-offset: 4px;
+}
+.download-in_progress,
+.download-complete {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  height: calc(100% - 4px);
+  padding: 0 10px 0px 30px;
+  background: linear-gradient(
+    to left,
+    rgba(242, 242, 242, 1) calc(100% - 20px),
+    rgba(242, 242, 242, 0)
+  );
+  display: none;
+  flex-flow: row nowrap;
+}
+[download-button] {
+  height: 30px;
+  width: 40px;
+  text-align: center;
+  align-content: center;
+  margin: 6px 0;
+  border-radius: 2px;
+}
+[download-button]:hover {
+  background-color: #e5e5e5;
+}
+/* 下载状态 */
+[download-button="resume"],
+.paused [download-button="pause"] {
+  display: none;
+}
+.paused [download-button="resume"] {
+  display: block;
+}
+.download-bytes-info,
+.download-progress,
+.download-open-file {
+  display: none;
+}
+.download-item.in_progress .download-bytes-info,
+.download-item.in_progress .download-progress {
+  display: block;
+}
+.download-item.complete .download-open-file {
+  display: inline-block;
+}
+.download-item.in_progress:hover .download-in_progress,
+.download-item.complete:hover .download-complete {
+  display: flex;
+}
+.download-item.in_progress .download-deleted {
+  display: none !important;
+}
+/* 已删除 */
+.download-deleted {
+  display: none;
+}
+.deleted .download-deleted {
+  display: block;
+}
+.download-item.complete.deleted {
+  cursor: default;
+  filter: grayscale(1);
+}
+.download-item.complete.deleted .download-name {
+  text-decoration-line: line-through;
+}
+.download-item.complete.deleted .download-open-file,
+.download-item.complete.deleted .download-in_progress,
+.download-item.complete.deleted .download-complete {
+  display: none !important;
 }
 
 /* 窗口失去焦点 */

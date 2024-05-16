@@ -60,7 +60,7 @@
   - `shortcut.js` - 快捷键（也会注入到 WebView 中）
 - `common.js` - 工具函数
 - `filePicker.js` - 文件选择器封装
-- `downloader.js` - 下载
+- `downloads.js` - 下载
 - `setting.js` - 设置数据（保存在 `chrome.storage` 中）
   - `defaultSetting.json` - 默认设置数据
 

@@ -43,6 +43,8 @@ window.addEventListener("keydown", (e) => {
     cmd = "addTab"; // 新建标签页
   } else if (shortcut === "Ctrl+W") {
     cmd = "closeTab"; // 关闭当前标签页
+  } else if (shortcut === "Ctrl+J") {
+    cmd = "showDownloads"; // 下载
   } else if (shortcut === "Ctrl+Shift+I") {
     cmd = "toggleWebviewDevTools"; // 开发者工具
   } else if (shortcut === "ESCAPE") {

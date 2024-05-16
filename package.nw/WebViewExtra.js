@@ -273,10 +273,10 @@ export default class WebViewExtra extends EventEmitter {
     return this.#el;
   }
   get src() {
-    return this.#el.src;
+    return this.#el?.src;
   }
   set src(src) {
-    this.#el.src = src;
+    if (this.#el) this.#el.src = src;
   }
   get url() {
     return this.src;
@@ -313,7 +313,7 @@ export default class WebViewExtra extends EventEmitter {
   }
   // 向WebView发送消息（WARN：页面本身也能侦听到这些消息）
   postMessage(type, data) {
-    this.#el.contentWindow.postMessage({ instanceId: this.#instanceId, type, data }, "*");
+    this.#el?.contentWindow.postMessage({ instanceId: this.#instanceId, type, data }, "*");
   }
   // 侦听来自WebView的消息（可以在注入的脚本中发送）
   onMessage(type, handler) {
@@ -323,7 +323,7 @@ export default class WebViewExtra extends EventEmitter {
 
   // 销毁（移除WebView时需要要调用）
   destory() {
-    this.#el.remove();
+    this.#el?.remove();
     this.#el = null;
     delete messageHandlers[this.#instanceId];
   }
@@ -350,37 +350,37 @@ export default class WebViewExtra extends EventEmitter {
 
   // 可以向WebView发送消息（contentWindow.postMessage）
   get contentWindow() {
-    return this.#el.contentWindow;
+    return this.#el?.contentWindow;
   }
 
   // 可以在右键菜单中添加自定义的菜单项
   get contextMenus() {
-    return this.#el.contextMenus;
+    return this.#el?.contextMenus;
   }
 
   // 页面上的webRequest事件的接口
   get request() {
-    return this.#el.request;
+    return this.#el?.request;
   }
 
   // 是否可以向后导航（返回）
   get canGoBack() {
-    return this.#el.canGoBack();
+    return this.#el?.canGoBack();
   }
 
   // 是否可以向前导航（前进）
   get canGoForward() {
-    return this.#el.canGoForward();
+    return this.#el?.canGoForward();
   }
 
   // 重新加载（刷新）
   reload() {
-    return this.#el.reload();
+    return this.#el?.reload();
   }
 
   // 停止加载
   stop() {
-    return this.#el.stop();
+    return this.#el?.stop();
   }
 
   /**
@@ -389,7 +389,7 @@ export default class WebViewExtra extends EventEmitter {
    *   @param success {boolean} 是否导航成功
    */
   back(callback) {
-    return this.#el.back(callback);
+    return this.#el?.back(callback);
   }
 
   /**
@@ -398,7 +398,7 @@ export default class WebViewExtra extends EventEmitter {
    *   @param success {boolean} 是否导航成功
    */
   forward(callback) {
-    return this.#el.forward(callback);
+    return this.#el?.forward(callback);
   }
 
   /**
@@ -408,7 +408,7 @@ export default class WebViewExtra extends EventEmitter {
    *   @param success {boolean} 是否导航成功
    */
   go(relativeIndex, callback) {
-    return this.#el.go(relativeIndex, callback);
+    return this.#el?.go(relativeIndex, callback);
   }
 
   /**
@@ -433,7 +433,7 @@ export default class WebViewExtra extends EventEmitter {
    *   @param match_about_blank {boolean} 是否匹配“about:blank”
    */
   addContentScripts(contentScriptList) {
-    return this.#el.addContentScripts(contentScriptList);
+    return this.#el?.addContentScripts(contentScriptList);
   }
 
   /**
@@ -441,7 +441,7 @@ export default class WebViewExtra extends EventEmitter {
    * @param scriptNameList {string[]} 项的name的列表，如果列表为空，会移除所有注入的内容
    */
   removeContentScripts(scriptNameList) {
-    return this.#el.removeContentScripts(scriptNameList);
+    return this.#el?.removeContentScripts(scriptNameList);
   }
 
   /**
@@ -455,7 +455,7 @@ export default class WebViewExtra extends EventEmitter {
    *   @param result {any[]} 执行结果
    */
   executeScript(details, callback) {
-    if (this.#loaded) return this.#el.executeScript(details, callback);
+    if (this.#loaded) return this.#el?.executeScript(details, callback);
     else this.#executeScriptQuery.push({ details, callback });
   }
 
@@ -467,7 +467,7 @@ export default class WebViewExtra extends EventEmitter {
    * @param callback
    */
   insertCSS(details, callback) {
-    return this.#el.insertCSS(details, callback);
+    return this.#el?.insertCSS(details, callback);
   }
 
   /**
@@ -483,7 +483,7 @@ export default class WebViewExtra extends EventEmitter {
    *   @param selectionRect {SelectionRect} 当前匹配项的区域矩形（即高亮范围）
    */
   find(searchText, options, callback) {
-    return this.#el.find(searchText, options, callback);
+    return this.#el?.find(searchText, options, callback);
   }
 
   /**
@@ -494,7 +494,7 @@ export default class WebViewExtra extends EventEmitter {
    *   - "activate" 保留当前匹配项的选中状态，并模拟用户点击该匹配项
    */
   stopFinding(action) {
-    return this.#el.stopFinding(action);
+    return this.#el?.stopFinding(action);
   }
 
   /**
@@ -504,7 +504,7 @@ export default class WebViewExtra extends EventEmitter {
    * @param virtualUrl {string} 向用户显示的虚拟网址
    */
   loadDataWithBaseUrl(dataUrl, baseUrl, virtualUrl) {
-    return this.#el.loadDataWithBaseUrl(dataUrl, baseUrl, virtualUrl);
+    return this.#el?.loadDataWithBaseUrl(dataUrl, baseUrl, virtualUrl);
   }
 
   /**
@@ -524,7 +524,7 @@ export default class WebViewExtra extends EventEmitter {
    * @param callback
    */
   clearData(options, types, callback) {
-    return this.#el.clearData(options, types, callback);
+    return this.#el?.clearData(options, types, callback);
   }
 
   /**
@@ -532,10 +532,10 @@ export default class WebViewExtra extends EventEmitter {
    * @param zoomFactor {number}
    */
   set zoom(zoomFactor) {
-    this.#el.setZoom(zoomFactor);
+    this.#el?.setZoom(zoomFactor);
   }
   get zoom() {
-    return this.#el.getZoom();
+    return this.#el?.getZoom();
   }
 
   /**
@@ -543,10 +543,10 @@ export default class WebViewExtra extends EventEmitter {
    * @param zoomMode {string} "per-origin"|"per-view"|"disabled"
    */
   set zoomMode(zoomMode) {
-    this.#el.setZoomMode(zoomMode);
+    this.#el?.setZoomMode(zoomMode);
   }
   get zoomMode() {
-    return this.#el.getZoomMode();
+    return this.#el?.getZoomMode();
   }
 
   /**
@@ -554,17 +554,17 @@ export default class WebViewExtra extends EventEmitter {
    * @param mute {boolean}
    */
   set audioMuted(mute) {
-    this.#el.setAudioMuted(mute);
+    this.#el?.setAudioMuted(mute);
   }
   get audioMuted() {
-    return this.#el.isAudioMuted();
+    return this.#el?.isAudioMuted();
   }
   /**
    * 查询音频状态
    * @param audible {boolean}
    */
   getAudioState(callback) {
-    return this.#el.getAudioState(callback);
+    return this.#el?.getAudioState(callback);
   }
 
   /**
@@ -572,13 +572,13 @@ export default class WebViewExtra extends EventEmitter {
    * @param userAgent {string}
    */
   set userAgent(userAgent) {
-    this.#el.setUserAgentOverride(userAgent);
+    this.#el?.setUserAgentOverride(userAgent);
   }
   get userAgent() {
-    return this.#el.getUserAgent();
+    return this.#el?.getUserAgent();
   }
   get isUserAgentOverridden() {
-    return this.#el.isUserAgentOverridden();
+    return this.#el?.isUserAgentOverridden();
   }
 
   /**
@@ -586,10 +586,10 @@ export default class WebViewExtra extends EventEmitter {
    * @param enabled {boolean}
    */
   set spatialNavigationEnabled(enabled) {
-    this.#el.setSpatialNavigationEnabled(enabled);
+    this.#el?.setSpatialNavigationEnabled(enabled);
   }
   get spatialNavigationEnabled() {
-    return this.#el.isSpatialNavigationEnabled();
+    return this.#el?.isSpatialNavigationEnabled();
   }
 
   /**
@@ -600,22 +600,22 @@ export default class WebViewExtra extends EventEmitter {
    *   @param dataUrl {string} 数据URL，可以用于给<img>的src
    */
   captureVisibleRegion({ format = "jpeg", quality }, callback) {
-    return this.#el.captureVisibleRegion({ format, quality }, callback);
+    return this.#el?.captureVisibleRegion({ format, quality }, callback);
   }
 
   // 打印WebView内容
   print() {
-    return this.#el.print();
+    return this.#el?.print();
   }
 
   // 获取WebView的进程ID
   get processId() {
-    return this.#el.getProcessId();
+    return this.#el?.getProcessId();
   }
 
   // 强制终止WebView的渲染进程
   terminate() {
-    return this.#el.terminate();
+    return this.#el?.terminate();
   }
 
   /**
@@ -628,21 +628,21 @@ export default class WebViewExtra extends EventEmitter {
    * @param container {WebView Element} 开发者工具容器
    */
   showDevTools(show, container) {
-    return this.#el.showDevTools(show, container);
+    return this.#el?.showDevTools(show, container);
   }
 
   // 检查指定位置的元素
   inspectElementAt(x, y) {
-    return this.#el.inspectElementAt(x, y);
+    return this.#el?.inspectElementAt(x, y);
   }
 
   // 是否信任本地URL
   get isPartitionTrusted() {
-    return this.#el.getAttribute("partition") === "trusted";
+    return this.#el?.getAttribute("partition") === "trusted";
   }
 
   // 是否启用Node.js支持
   get isNodeEnabled() {
-    return this.#el.getAttribute("allownw") === "";
+    return this.#el?.getAttribute("allownw") === "";
   }
 }

@@ -26,3 +26,23 @@ export function createMenu(items, option = { type: "contextmenu" }) {
 export function between(min, value, max) {
   return value < min ? min : value > max ? max : value;
 }
+
+// 语义化字节数
+export function humanBytes(bytes, digits = 1) {
+  const i = bytes == 0 ? 0 : Math.floor(Math.log(bytes) / Math.log(1024));
+  return (
+    Number((bytes / Math.pow(1024, i)).toFixed(digits)) + " " + ["B", "KB", "MB", "GB", "TB"][i]
+  );
+}
+
+// 简单的模板编译
+export function compileHTML(template, data) {
+  return template.replace(/\${(.*?)}/g, (_, key) => {
+    return data[key.trim()] || "";
+  });
+}
+
+// 延迟
+export function delay(ms = 0) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

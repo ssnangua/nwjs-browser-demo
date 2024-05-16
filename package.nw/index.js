@@ -1,6 +1,6 @@
 import setting from "./setting.js";
 import win from "./window.js";
-import { pages, isAppPage } from "./common.js";
+import { pages, isAppPage, delay } from "./common.js";
 import tabBar from "./tabBar.js";
 import tabContextmenu from "./tabContextmenu.js";
 import tabPreview from "./tabPreview.js";
@@ -12,10 +12,11 @@ import hrefPreview from "./hrefPreview.js";
 import appMenu from "./appMenu.js";
 import "./contextmenu.js";
 import shortcut from "./shortcut.js";
-import downloader from "./downloader.js";
+import downloads from "./downloads.js";
 
 await setting.init(); // 设置数据初始化
 
+const nodeURL = require("node:url");
 const clipboard = nw.Clipboard.get();
 
 const { name: appName } = nw.App.manifest;
@@ -108,7 +109,9 @@ const browser = {
     webviews.activeWebview.stopFinding();
   },
   esc() {
-    if (findBar.isShow) {
+    if (downloads.isShow) {
+      downloads.hide();
+    } else if (findBar.isShow) {
       findBar.hide();
       browser.stopFinding();
     }
@@ -123,12 +126,12 @@ const browser = {
   // 页面另存为
   savePageAs() {
     const { url, title } = tabBar.activeTab;
-    downloader.savePageAs(url, title);
+    downloads.savePageAs(url, title);
   },
   // 链接另存为
-  saveLinkAs: ({ url }) => downloader.saveLinkAs(url),
+  saveLinkAs: ({ url }) => downloads.download(url),
   // 将图片另存为
-  saveImageAs: ({ url }) => downloader.saveImageAs(url),
+  saveImageAs: ({ url }) => downloads.download(url),
   // 复制图像
   copyImage: ({ url }) => {
     webviews.activeWebview.getImageData(url, ({ type, data }) => {
@@ -153,7 +156,9 @@ const browser = {
   },
 
   // 显示应用菜单
-  showAppMenu: ({ x, y }) => appMenu.popup(x, y),
+  showAppMenu: () => appMenu.show(),
+  // 显示下载面板
+  showDownloads: () => downloads.show(),
   // 关于
   showAbout() {
     const os = require("node:os");
@@ -231,19 +236,20 @@ tabBar.on("tabMousedown", () => tabPreview.hide());
  * 地址栏
  */
 // 更新地址栏信息
-function updateAddressBar(tabId) {
+async function updateAddressBar(tabId) {
   const webview = webviews.getWebview(tabId);
-  addressBar.update({
+  addressBar.updateNavigate({
     url: webview.url, // 输入框url
     canGoBack: webview.canGoBack, // 是否可返回
     canGoForward: webview.canGoForward, // 是否可前进
   });
-  setTimeout(() => {
-    if (webview.url === pages.blank.url) addressBar.focus(); // 如果是空白页，地址栏输入框自动获得焦点
-  }, 0);
+  if (webview.url === pages.blank.url) {
+    await delay();
+    addressBar.focus(); // 如果是空白页，地址栏输入框自动获得焦点
+  }
 }
 // 地址栏按钮点击
-addressBar.on("buttonClick", (cmd, data) => browser[cmd]?.(data));
+addressBar.on("buttonClick", (cmd) => browser[cmd]?.());
 // 地址栏导航
 addressBar.on("navigate", (url) => browser.navigate(url));
 
@@ -278,6 +284,7 @@ webviews.on("navigate", (tabId, url) => {
 // WebView加载中断
 webviews.on("stop", (tabId) => {
   const tab = tabBar.getTab(tabId);
+  if (!tab) return;
   tab.loading = false; // 隐藏标签页loading图标
   if (tab.isActive) addressBar.loading = false; // 地址栏隐藏停止按钮，显示刷新按钮
 });
@@ -293,6 +300,13 @@ webviews.on("getSettingData", (tabId) => {
 });
 // 保存设置信息
 webviews.on("setSettingData", (data) => setting.set(data));
+// 下载请求
+webviews.on("download", ({ url }) => {
+  downloads.download(url);
+  // 如果下载的url是标签页本身，自动关闭标签页
+  if (url.startsWith("file:///")) url = nodeURL.fileURLToPath(url);
+  tabBar.getTabByUrl(url)?.remove();
+});
 
 /**
  * WebView右键菜单
@@ -329,6 +343,11 @@ function handleShortcut({ cmd, data }) {
 }
 shortcut.on("shortcut", handleShortcut); // 应用窗口的快捷键操作
 webviews.on("shortcut", handleShortcut); // 代理WebView的快捷键操作
+
+/**
+ * 下载
+ */
+downloads.on("change", (data) => addressBar.updateDownload(data));
 
 /**
  * 在页面上查找

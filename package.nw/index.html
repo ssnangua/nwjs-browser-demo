@@ -40,6 +40,19 @@
       <i title="停止" class="iconfont icon-close" nav-button="stop"></i>
       <i class="iconfont icon-search address-icon"></i>
       <input id="address" type="text" placeholder="搜索或输入 Web 地址" />
+      <i title="下载" class="iconfont icon-download" nav-button="download"></i>
+      <span title="下载" nav-button="downloading" style="--count: '0'">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          class="circular-progress"
+          style="--size: 24px; --stroke-width: 4px; --progress: 0"
+        >
+          <circle class="bg"></circle>
+          <circle class="fg"></circle>
+        </svg>
+      </span>
       <i title="设置及其他" class="iconfont icon-more" nav-button="showAppMenu"></i>
     </div>
 
@@ -78,6 +91,71 @@
       <i title="上一个结果 (Ctrl+Shift+G)" class="iconfont icon-up" find-button="prev"></i>
       <i title="下一个结果 (Ctrl+G)" class="iconfont icon-down" find-button="next"></i>
       <i title="关闭" class="iconfont icon-close" find-button="close"></i>
+    </div>
+
+    <!-- 下载列表 -->
+    <div class="modal hide"></div>
+    <div id="downloads" class="hide">
+      <div class="downloads-header">
+        <span class="downloads-title">下载</span>
+        <span class="downloads-toolbar">
+          <i
+            title="打开下载文件夹"
+            class="iconfont icon-folder"
+            downloads-button="showDefaultFolder"
+          ></i>
+          <i title="搜索下载项" class="iconfont icon-search" downloads-button="search"></i>
+          <i title="更多选项" class="iconfont icon-more" downloads-button="more"></i>
+        </span>
+      </div>
+      <div class="downloads-search">
+        <i
+          id="downloads-search-back"
+          title="退出搜索"
+          class="iconfont icon-up"
+          downloads-button="end-search"
+        ></i>
+        <i class="iconfont icon-search"></i>
+        <input id="downloads-search-input" type="text" placeholder="搜索下载项" />
+      </div>
+      <div class="downloads-list-container">
+        <div id="downloads-list">
+          <template id="download-item-template">
+            <div
+              data-id="${id}"
+              data-path="${path}"
+              data-name="${name}"
+              class="download-item ${state} ${paused} ${canResume} ${deleted}"
+            >
+              <div class="download-icon">
+                <img src="${icon}" />
+              </div>
+              <div class="download-info">
+                <div class="download-name" title="${name}">${name}</div>
+                <progress class="download-progress" max="100" value="${progress}"></progress>
+                <div class="download-bytes-info">${bytesInfo}</div>
+                <div>
+                  <span class="download-open-file">打开文件</span>
+                </div>
+                <div class="download-deleted">已删除</div>
+              </div>
+              <div class="download-in_progress">
+                <i title="暂停" class="iconfont icon-pause" download-button="pause"></i>
+                <i title="恢复" class="iconfont icon-resume" download-button="resume"></i>
+                <i title="取消" class="iconfont icon-close" download-button="cancel"></i>
+              </div>
+              <div class="download-complete">
+                <i
+                  title="在文件夹中显示"
+                  class="iconfont icon-folder-open"
+                  download-button="showInFolder"
+                ></i>
+                <i title="删除文件" class="iconfont icon-delete" download-button="delete"></i>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
     </div>
 
     <script src="./lib/chrome-tabs/draggabilly.pkgd.min.js"></script>

@@ -96,7 +96,8 @@
       })
 
       this.el.addEventListener('dblclick', event => {
-        if ([this.el, this.tabContentEl].includes(event.target)) this.addTab()
+        // HACK
+        // if ([this.el, this.tabContentEl].includes(event.target)) this.addTab()
       })
 
       this.tabEls.forEach((tabEl) => this.setTabCloseEventListener(tabEl))
@@ -253,6 +254,10 @@
       if (tabProperties.favicon) {
         faviconEl.style.backgroundImage = `url('${ tabProperties.favicon }')`
         faviconEl.removeAttribute('hidden', '')
+        // HACK
+        const img = new Image();
+        img.onerror = () => (faviconEl.style.backgroundImage = `url('./assets/file.png')`);
+        img.src = tabProperties.favicon;
       } else {
         faviconEl.setAttribute('hidden', '')
         faviconEl.removeAttribute('style')
