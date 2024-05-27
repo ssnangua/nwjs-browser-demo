@@ -43,6 +43,12 @@ window.addEventListener("keydown", (e) => {
     cmd = "addTab"; // 新建标签页
   } else if (shortcut === "Ctrl+W") {
     cmd = "closeTab"; // 关闭当前标签页
+  } else if (shortcut === "Ctrl+D") {
+    cmd = "addBookmark"; // 添加到收藏夹
+  } else if (shortcut === "Ctrl+Shift+O") {
+    cmd = "showBookmarks"; // 收藏夹
+  } else if (shortcut === "Ctrl+H") {
+    cmd = "showHistory"; // 历史记录
   } else if (shortcut === "Ctrl+J") {
     cmd = "showDownloads"; // 下载
   } else if (shortcut === "Ctrl+Shift+I") {

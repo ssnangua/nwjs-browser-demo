@@ -16,6 +16,20 @@ const menu = createMenu([
   },
   { type: "separator" },
   {
+    label: "收藏夹",
+    icon: "./assets/bookmarks.png",
+    key: "o",
+    modifiers: "ctrl+shift",
+    click: () => emitter.emit("itemClick", "showBookmarks"),
+  },
+  {
+    label: "历史记录",
+    icon: "./assets/history.png",
+    key: "h",
+    modifiers: "ctrl",
+    click: () => emitter.emit("itemClick", "showHistory"),
+  },
+  {
     label: "下载",
     icon: "./assets/download.png",
     key: "j",

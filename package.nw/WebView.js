@@ -62,10 +62,6 @@ export default class WebView extends WebViewExtra {
     this.el.setAttribute("data-tab-id", tabId);
     $webviewContainer.appendChild(this.el);
 
-    this.el.addEventListener("drop", (e) => {
-      console.log(e);
-    });
-
     this.onMessage("WV_imageData", (data) => {
       this.#imageDataHandler(data);
       this.#imageDataHandler = null;

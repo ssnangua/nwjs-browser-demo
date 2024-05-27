@@ -40,8 +40,29 @@
       <i title="停止" class="iconfont icon-close" nav-button="stop"></i>
       <i class="iconfont icon-search address-icon"></i>
       <input id="address" type="text" placeholder="搜索或输入 Web 地址" />
-      <i title="下载" class="iconfont icon-download" nav-button="download"></i>
-      <span title="下载" nav-button="downloading" style="--count: '0'">
+      <i
+        title="将此页面添加到收藏夹 (Ctrl+D)"
+        class="iconfont icon-bookmark"
+        nav-button="addBookmark"
+      ></i>
+      <i
+        title="收藏夹 (Ctrl+Shift+O)"
+        class="iconfont icon-bookmarks"
+        nav-button="showBookmarks"
+      ></i>
+      <i title="历史记录 (Ctrl+H)" class="iconfont icon-history" nav-button="showHistory"></i>
+      <i
+        title="下载 (Ctrl+J)"
+        class="iconfont icon-download"
+        nav-button="showDownloads"
+        nav-button-state="download"
+      ></i>
+      <span
+        title="下载 (Ctrl+J)"
+        nav-button="showDownloads"
+        nav-button-state="downloading"
+        style="--count: '0'"
+      >
         <svg
           width="24"
           height="24"
@@ -93,32 +114,21 @@
       <i title="关闭" class="iconfont icon-close" find-button="close"></i>
     </div>
 
-    <!-- 下载列表 -->
-    <div class="modal hide"></div>
-    <div id="downloads" class="hide">
-      <div class="downloads-header">
-        <span class="downloads-title">下载</span>
-        <span class="downloads-toolbar">
-          <i
-            title="打开下载文件夹"
-            class="iconfont icon-folder"
-            downloads-button="showDefaultFolder"
-          ></i>
-          <i title="搜索下载项" class="iconfont icon-search" downloads-button="search"></i>
-          <i title="更多选项" class="iconfont icon-more" downloads-button="more"></i>
-        </span>
-      </div>
-      <div class="downloads-search">
+    <!-- 下载 -->
+    <popup-box
+      id="downloads"
+      data-title="下载"
+      data-seart-search-button-title="搜索下载项"
+      data-search-input-placeholder="搜索下载项"
+    >
+      <span slot="buttons">
         <i
-          id="downloads-search-back"
-          title="退出搜索"
-          class="iconfont icon-up"
-          downloads-button="end-search"
+          title="打开下载文件夹"
+          class="iconfont icon-folder popup-box-button"
+          downloads-button="showDefaultFolder"
         ></i>
-        <i class="iconfont icon-search"></i>
-        <input id="downloads-search-input" type="text" placeholder="搜索下载项" />
-      </div>
-      <div class="downloads-list-container">
+      </span>
+      <div slot="content">
         <div id="downloads-list">
           <template id="download-item-template">
             <div
@@ -156,7 +166,39 @@
           </template>
         </div>
       </div>
-    </div>
+    </popup-box>
+
+    <!-- 历史记录 -->
+    <popup-box
+      id="history"
+      data-title="历史记录"
+      data-seart-search-button-title="搜索历史记录"
+      data-search-input-placeholder="搜索历史记录"
+    >
+      <div slot="content">
+        <div id="history-list">
+          <template id="history-item-template">
+            <div
+              data-url="${url}"
+              data-title="${title}"
+              data-date="${date}"
+              title="${title}
+${url}"
+              class="history-item ${state} ${paused} ${canResume} ${deleted}"
+            >
+              <img class="history-icon" src="${favicon}" onerror="this.src='./assets/file.png'" />
+              <span class="history-title">${title}</span>
+              <span class="history-time">${time}</span>
+              <i
+                title="删除"
+                class="iconfont icon-close history-delete"
+                history-button="delete"
+              ></i>
+            </div>
+          </template>
+        </div>
+      </div>
+    </popup-box>
 
     <script src="./lib/chrome-tabs/draggabilly.pkgd.min.js"></script>
     <script src="./lib/chrome-tabs/chrome-tabs.js"></script>

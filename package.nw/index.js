@@ -1,6 +1,7 @@
 import setting from "./setting.js";
 import win from "./window.js";
 import { pages, isAppPage, delay } from "./common.js";
+import "./PopupBox.js";
 import tabBar from "./tabBar.js";
 import tabContextmenu from "./tabContextmenu.js";
 import tabPreview from "./tabPreview.js";
@@ -13,10 +14,11 @@ import appMenu from "./appMenu.js";
 import "./contextmenu.js";
 import shortcut from "./shortcut.js";
 import downloads from "./downloads.js";
+import history from "./history.js";
 
 await setting.init(); // 设置数据初始化
 
-const nodeURL = require("node:url");
+const NodeURL = require("node:url");
 const clipboard = nw.Clipboard.get();
 
 const { name: appName } = nw.App.manifest;
@@ -111,6 +113,8 @@ const browser = {
   esc() {
     if (downloads.isShow) {
       downloads.hide();
+    } else if (history.isShow) {
+      history.hide();
     } else if (findBar.isShow) {
       findBar.hide();
       browser.stopFinding();
@@ -159,6 +163,12 @@ const browser = {
   showAppMenu: () => appMenu.show(),
   // 显示下载面板
   showDownloads: () => downloads.show(),
+  // 显示历史记录面板
+  showHistory: () => history.show(),
+  // 显示收藏夹面板
+  showBookmarks: () => alert("TODO：收藏夹面板"),
+  // 添加到收藏夹
+  addBookmark: () => alert("TODO：添加到收藏夹"),
   // 关于
   showAbout() {
     const os = require("node:os");
@@ -260,7 +270,7 @@ appMenu.on("itemClick", (cmd, data) => browser[cmd]?.(data));
  * WebView
  */
 // 页面信息变更
-webviews.on("infoUpdate", (tabId, { favicon, title }) => {
+webviews.on("infoUpdate", async (tabId, { url, favicon, title }) => {
   const tab = tabBar.getTab(tabId);
   tab.favicon = favicon; // 更新标签页图标
   tab.title = title; // 更新标签页标题
@@ -270,6 +280,7 @@ webviews.on("infoUpdate", (tabId, { favicon, title }) => {
     document.title = title || appName; // 更新窗口标题（任务栏标题）
   }
   if (tab.url === pages.blank.url) addressBar.focus(); // 如果是空白页，地址栏输入框自动获得焦点
+  history.addUrl({ url, favicon, title }); // 添加到历史记录
 });
 // WebView文档发生导航
 webviews.on("navigate", (tabId, url) => {
@@ -304,7 +315,7 @@ webviews.on("setSettingData", (data) => setting.set(data));
 webviews.on("download", ({ url }) => {
   downloads.download(url);
   // 如果下载的url是标签页本身，自动关闭标签页
-  if (url.startsWith("file:///")) url = nodeURL.fileURLToPath(url);
+  if (url.startsWith("file:///")) url = NodeURL.fileURLToPath(url);
   tabBar.getTabByUrl(url)?.remove();
 });
 
@@ -348,6 +359,15 @@ webviews.on("shortcut", handleShortcut); // 代理WebView的快捷键操作
  * 下载
  */
 downloads.on("change", (data) => addressBar.updateDownload(data));
+
+/**
+ * 历史记录
+ */
+history.on("openHistory", (url) => {
+  const tab = tabBar.getTab();
+  if (tab.url === pages.blank.url) browser.navigate(url);
+  else browser.addTab({ url, insertAfter: tab.tabId });
+});
 
 /**
  * 在页面上查找

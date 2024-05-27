@@ -17,7 +17,6 @@ const downloadFolder = path.join(process.env.USERPROFILE, "Downloads");
 chrome.downloads.setShelfEnabled(false);
 
 const $downloads = document.querySelector("#downloads");
-const $searchInput = document.querySelector("#downloads-search-input");
 const $downloadsList = document.querySelector("#downloads-list");
 const itemTemplate = document.querySelector("#download-item-template").innerHTML;
 
@@ -25,8 +24,10 @@ const MS = 200;
 const prevBytes = {};
 
 // 获取下载项数据
-function searchDownloads(query = {}) {
-  return new Promise((resolve) => chrome.downloads.search(query, resolve));
+async function searchDownloads(query = {}) {
+  const results = await new Promise((resolve) => chrome.downloads.search(query, resolve));
+  results.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+  return results;
 }
 
 // 获取下载项图标
@@ -36,6 +37,28 @@ function getIcon(downloadId) {
   });
 }
 
+$downloads.querySelectorAll("[downloads-button]").forEach((el) => {
+  const cmd = el.getAttribute("downloads-button");
+  el.addEventListener("click", (e) => {
+    if (cmd === "showDefaultFolder") {
+      nw.Shell.openItem(setting.get("downloadsFolder"));
+    }
+  });
+});
+
+// 搜索
+function doSearch(text = "") {
+  text = text.trim();
+  // TODO：没有做节流处理，数据较大时会有性能问题
+  [...$downloadsList.children].forEach(($item) => {
+    $item.classList[!text || $item.dataset.name.indexOf(text) > -1 ? "remove" : "add"]("hide");
+  });
+  updateSize();
+}
+$downloads.addEventListener("search", ({ detail }) => doSearch(detail));
+$downloads.addEventListener("end-search", () => doSearch(""));
+
+// 更多选项
 const moreMenu = createMenu([
   {
     label: "清除所有下载历史记录",
@@ -50,40 +73,10 @@ const moreMenu = createMenu([
     },
   },
 ]);
-
-$downloads.querySelectorAll("[downloads-button]").forEach((el) => {
-  const cmd = el.getAttribute("downloads-button");
-  el.addEventListener("click", (e) => {
-    if (cmd === "showDefaultFolder") {
-      nw.Shell.openItem(setting.get("downloadsFolder"));
-    } else if (cmd === "search") {
-      startSearch();
-    } else if (cmd === "end-search") {
-      endSearch();
-    } else if (cmd === "more") {
-      const { right, bottom } = el.getBoundingClientRect();
-      moreMenu.popup(right - 188, bottom);
-    }
-  });
+$downloads.addEventListener("more", ({ detail }) => {
+  const { right, bottom } = detail.el.getBoundingClientRect();
+  moreMenu.popup(right - 188, bottom);
 });
-
-function startSearch() {
-  $downloads.classList.add("search");
-  $searchInput.focus();
-}
-function endSearch() {
-  $searchInput.value = "";
-  doSearch();
-  $downloads.classList.remove("search");
-}
-function doSearch() {
-  const text = $searchInput.value.trim();
-  [...$downloadsList.children].forEach(($item) => {
-    $item.classList[!text || $item.dataset.name.indexOf(text) > -1 ? "remove" : "add"]("hide");
-  });
-  updateSize();
-}
-$searchInput.addEventListener("input", doSearch);
 
 // 获取下载项数据
 async function getItemData(item) {
@@ -134,7 +127,7 @@ async function updateItem(item) {
 
 async function updateSize() {
   await delay();
-  $downloads.style.height = $downloadsList.offsetHeight + 42 + "px";
+  $downloads.style.setProperty("--height", $downloadsList.offsetHeight + 42 + "px");
 }
 
 let $selectedItem;
@@ -270,16 +263,6 @@ chrome.downloads.onErased.addListener((downloadId) => {
   updateSize();
 });
 
-// 在下载面板外部按下鼠标，关闭下载面板
-//   WebView会吞掉鼠标事件，导致无法侦听到window的鼠标事件，所以加个全屏蒙版
-const $modal = document.querySelector(".modal");
-$modal.addEventListener("mousedown", hide);
-function hide() {
-  $modal.classList.add("hide");
-  $downloads.classList.add("hide");
-  endSearch();
-}
-
 // 解决文件名冲突
 function getNoConflictPath(folder, filename, count = 0) {
   const { name, ext } = path.parse(filename);
@@ -348,22 +331,24 @@ function savePageAs(url, title) {
 export default {
   on: (type, listener) => emitter.on(type, listener),
   get isShow() {
-    return !$downloads.classList.contains("hide");
+    return $downloads.isShow;
   },
   async show() {
     if (this.isShow) return;
     // 获取下载项列表
     const items = await searchDownloads();
     // console.log(items);
-    // 渲染下载面板
+    // 渲染下载列表
+    // TODO：没有做滚动加载，数据较大时会有性能问题
     const list = await Promise.all(items.map((item) => getItemData(item)));
     $downloadsList.innerHTML = list.map((item) => compileHTML(itemTemplate, item)).join("");
     // 显示下载面板
-    $modal.classList.remove("hide");
-    $downloads.classList.remove("hide");
+    $downloads.show();
     updateSize();
   },
-  hide,
+  hide() {
+    $downloads.hide();
+  },
   download(url) {
     // TODO：NW.js该方法有bug，始终会弹出另存为对话框，即使把saveAs设为false
     // @reference https://github.com/nwjs/nw.js/issues/5599

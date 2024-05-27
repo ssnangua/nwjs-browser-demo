@@ -188,7 +188,7 @@ export default {
           /* 粘贴 */ { ...inputMenu.paste, enabled: canPaste },
           /* 全选 */ { ...inputMenu.selectAll, enabled: types.input.hasValue },
         ]);
-        console.log(itemsGroups);
+        // console.log(itemsGroups);
       }
 
       if (types.selection) {

@@ -8,18 +8,13 @@ const emitter = new EventEmitter();
 
 const $addressBar = document.querySelector(".address-bar");
 const $showAppMenu = document.querySelector('[nav-button="showAppMenu"]');
-const $downloading = document.querySelector('[nav-button="downloading"]');
-const $progress = document.querySelector('[nav-button="downloading"]>svg');
+const $downloading = document.querySelector('[nav-button-state="downloading"]');
+const $progress = document.querySelector('[nav-button-state="downloading"]>svg');
 
 // 按钮点击
 document.querySelectorAll("[nav-button]").forEach((el) => {
-  el.addEventListener("click", (e) => {
-    let cmd = el.getAttribute("nav-button");
-    if (cmd === "download" || cmd === "downloading") {
-      cmd = "showDownloads";
-    }
-    emitter.emit("buttonClick", cmd);
-  });
+  const cmd = el.getAttribute("nav-button");
+  el.addEventListener("click", (e) => emitter.emit("buttonClick", cmd));
 });
 
 // 地址输入框

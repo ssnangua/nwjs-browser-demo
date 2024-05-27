@@ -17,6 +17,14 @@
   - [x] 鼠标移上 `<a>` 标签时显示 **链接预览**
   - [x] 不同类型的元素显示相应的 **右键菜单**
 - [x] **查找栏**
+- [x] **下载**
+  - [x] 下载进度显示
+  - [x] 下载列表面板
+- [x] **历史记录**
+  - [x] 历史记录面板
+- [ ] **收藏夹**
+  - [ ] 收藏夹面板
+  - [ ] **书签栏**
 
 
 
@@ -41,7 +49,7 @@
 
 - `index.js` - 主窗口
   - `window.js` - 窗口控制
-  - `tabBar.js` - 标签栏
+  - `tabBar.js` - 标签栏（基于 [chrome-tabs](https://github.com/adamschwartz/chrome-tabs) 实现的仿 Chrome 标签栏）
     - `Tab.js` - 标签页组件
     - `tabContextmenu.js` - 标签页右键菜单
     - `tabPreview.js` - 标签页预览
@@ -58,10 +66,13 @@
     - `hrefPreview.js` - 链接预览
   - `contextmenu.js` - 主窗口右键菜单
   - `shortcut.js` - 快捷键（也会注入到 WebView 中）
+  - `downloads.js` - 下载（基于 `chrome.downloads` API 实现）
+  - `history.js` - 历史记录（数据保存在 `chrome.storage` 中）
+  - `bookmarks.js` - 收藏夹
 - `common.js` - 工具函数
 - `filePicker.js` - 文件选择器封装
-- `downloads.js` - 下载
-- `setting.js` - 设置数据（保存在 `chrome.storage` 中）
+- `PopupBox.js` - 弹出面板组件
+- `setting.js` - 设置数据（数据保存在 `chrome.storage` 中）
   - `defaultSetting.json` - 默认设置数据
 
 
